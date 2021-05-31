@@ -1,6 +1,7 @@
 import pygame
 import time
 import math
+import random
 pygame.init()
 window = pygame.display.set_mode((1200, 600))
 points = []
@@ -44,9 +45,23 @@ def scaler(p,l,s):
         newLines.append([scale(l[j][0],s),scale(l[j][1],s)])
     return newPoints,newLines
 
+# Returns y value of point on a given line
+def makePoint(start,end, x):
+    m = (end[1] - start[1]) / (end[0] - start[0])
+    y = (m * (x - start[0])) + start[1]
+    return [x,y]
+
+# Determines whether a point intersects a line
+def isIntersection(start,end,point):
+    m = (end[1] - start[1]) / (end[0] - start[0])
+    y = (m * (point[0] - start[0])) + start[1]
+    return abs(point[1] - y) < 4.1
+
 
 # Auto generates a configuration of n points, based on the algorithm from section 2.1
 def generate(num):
+
+
     print(num)
     genPoints = []
     genLines = []
@@ -67,6 +82,40 @@ def generate(num):
         genLines.append(
             list(extend(genPoints[j - 1][1], getNextPoint(genPoints[j - 2][0], genPoints[j - 2][1], genPoints[j - 1][1], 150)))
         )
+
+    n_1_l = p2[0]
+    n_1_r = genPoints[num-5][0][0]
+    n_l = genPoints[num-4][0][0]
+    n_r = genPoints[num-4][1][0]
+    l_1 = p2[0]
+    r_1 = p4[0]
+    test_n_1 = (n_1_l+n_1_r)/2
+    test_n = (n_l + n_r)/2
+    test_1 =(l_1+r_1)/2
+    p_n_2 = genPoints[num-4][1]
+    p_n_1 = makePoint(genPoints[num-5][0],genPoints[num-5][1],test_n_1)
+    p_n = makePoint(genPoints[num-4][0],genPoints[num-4][1],test_n)
+    p1 = makePoint(p2,p4,test_1)
+    while not isIntersection(p_n_2,p_n_1,p1) or not isIntersection(p_n_1,p_n,p2) or not isIntersection(p_n,p1,p3):
+        test_n_1 = random.randint(n_1_l,n_1_r)
+        test_n = random.randint(n_l,n_r)
+        test_1 = random.randint(l_1,r_1)
+        p_n_1 = makePoint(genPoints[num - 5][0], genPoints[num - 5][1], test_n_1)
+        p_n = makePoint(genPoints[num - 4][0], genPoints[num - 4][1], test_n)
+        p1 = makePoint(p2, p4, test_1)
+
+
+
+
+    genPoints.append([p_n_2,p_n_1])
+    genPoints.append([p_n_1,p_n])
+    genPoints.append([p_n,p1])
+    genLines.append(list(extend(p_n_2,p_n_1)))
+    genLines.append(list(extend(p_n_1,p_n)))
+    genLines.append(list(extend(p_n,p1)))
+
+
+    print(p_n_2,p_n_1,p_n,p1)
     return genPoints,genLines
 
 # pygame main loop
