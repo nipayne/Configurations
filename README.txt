@@ -8,5 +8,3 @@ q <-> quit
 mouse click and hold <-> Draw a line
 
 
-KNOWN ISSUES:
-Divide by zero: occurs when mouse is clicked and immediately released, line length needs to be greater than 0
