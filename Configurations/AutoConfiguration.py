@@ -8,27 +8,32 @@ lines = []
 begin = False
 anim = False
 n = 9
+
+# Used to extend line segments out to infinity (or reasonably close to it)
 def extend(start,end):
     m = (end[1] - start[1]) / (end[0] - start[0])
     left_y = (m * (-100000 - start[0])) + start[1]
     right_y = (m * (120000 - start[0])) + start[1]
     return [-100000, left_y], [120000, right_y]
 
-
+# distance formula
 def distance(start, end):
     return math.sqrt((end[1] - start[1]) ** 2 + (end[0] - start[0]) ** 2)
 
-
+# determines the next point for auto generation of the configuration.
+# Only used from j = 3 to n-3
 def getNextPoint(p1, p2, p3, s):
     m = (p2[1] - p1[1]) / (p2[0] - p1[0])
     y = m * ((p3[0] + s) - p1[0]) + p1[1]
     return [p3[0] + s, y]
 
+# Scales distance between point and center of window
 def scale(point,s):
     newX = point[0] - (600 - point[0]) * s
     newY = point[1] - (300 - point[1]) * s
     return [newX,newY]
 
+# Scales all points and lines based on desired percentage
 def scaler(p,l,s):
     if len(p) != len(l):
         print("ERROR")
@@ -39,6 +44,8 @@ def scaler(p,l,s):
         newLines.append([scale(l[j][0],s),scale(l[j][1],s)])
     return newPoints,newLines
 
+
+# Auto generates a configuration of n points, based on the algorithm from section 2.1
 def generate(num):
     print(num)
     genPoints = []
@@ -60,12 +67,9 @@ def generate(num):
         genLines.append(
             list(extend(genPoints[j - 1][1], getNextPoint(genPoints[j - 2][0], genPoints[j - 2][1], genPoints[j - 1][1], 150)))
         )
-    print("===================================")
-    print(genPoints)
-    print(genLines)
     return genPoints,genLines
 
-
+# pygame main loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -123,7 +127,8 @@ while True:
             if event.key == pygame.K_RIGHTBRACKET:
                 n += 1
     window.fill((255, 255, 255))
-
+    # Remaining code is used to manually draw points and lines
+    # as well as blit everything to the screen
     if any(pygame.mouse.get_pressed()) and not begin:
         posStart = pygame.mouse.get_pos()
         begin = True
